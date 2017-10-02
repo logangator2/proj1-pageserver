@@ -60,7 +60,7 @@ development environment, test on a Raspberry Pi running Ubuntu.
   running in a background process*
 
   ~~~~
-  make kill 
+  make stop 
   ~~~~
 
 * Check and revise your "credentials/credentials.ini" file.  My

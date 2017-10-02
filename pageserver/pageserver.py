@@ -89,11 +89,33 @@ def respond(sock):
     log.info("--- Received request ----")
     log.info("Request was {}\n***\n".format(request))
 
+    #Part I need to modify
+
     parts = request.split()
     if len(parts) > 1 and parts[0] == "GET":
-        transmit(STATUS_OK, sock)
-        transmit(CAT, sock)
+        filename = parts[1][1:]
+        log.info("FILE NAME: ".format(filename)) #FIXME: Delete after testing
+
+        if "//" in filename or "~" in filename or ".." in filename:
+            log.info("Forbidden request: {}".format(request))
+            transmit(STATUS_FORBIDDEN, sock)
+            transmit("This request is forbidden.", sock)
+        #if filename is in file repo
+        #transmit line by line
+        #else
+        #return 404 error
+        else:
+            if filename in options.repo: #filename in file repo:
+                log.info("Grabbing {}".format(filename))
+                transmit(STATUS_OK, sock)
+                transmit("Yo.", sock) #FIXME: Delete after testing
+                #transmit the file
+            else:
+                log.info("Request does not exist: {}".format(request))
+                transmit(STATUS_NOT_FOUND, sock)
+                transmit("\nThis request does not exist: {}\n".format(request), sock)
     else:
+        log.info("I should never be here") #FIXME: Delete after testing
         log.info("Unhandled request: {}".format(request))
         transmit(STATUS_NOT_IMPLEMENTED, sock)
         transmit("\nI don't handle this request: {}\n".format(request), sock)
