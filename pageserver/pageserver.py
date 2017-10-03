@@ -112,7 +112,7 @@ def respond(sock):
                             transmit(line, sock)
                 except OSError as error:
                     log.warn("Failed to open or read file")
-                    log.warn("Requested file was {}".format(source_path))
+                    log.warn("Requested file was {}".format(source_file))
                     log.warn("Exception: {}".format(error))
                 except:
                     log.info("I am 404ing right here 1") #FIXME: Delete when done testing
