@@ -15,6 +15,7 @@
 
 import config    # Configure from .ini files and command line
 import logging   # Better than print statements
+import os
 logging.basicConfig(format='%(levelname)s:%(message)s',
                     level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -89,33 +90,42 @@ def respond(sock):
     log.info("--- Received request ----")
     log.info("Request was {}\n***\n".format(request))
 
-    #Part I need to modify
-
     parts = request.split()
     if len(parts) > 1 and parts[0] == "GET":
         filename = parts[1][1:]
-        log.info("FILE NAME: ".format(filename)) #FIXME: Delete after testing
 
         if "//" in filename or "~" in filename or ".." in filename:
             log.info("Forbidden request: {}".format(request))
             transmit(STATUS_FORBIDDEN, sock)
             transmit("This request is forbidden.", sock)
-        #if filename is in file repo
-        #transmit line by line
-        #else
-        #return 404 error
+
         else:
-            if filename in options.repo: #filename in file repo:
-                log.info("Grabbing {}".format(filename))
-                transmit(STATUS_OK, sock)
-                transmit("Yo.", sock) #FIXME: Delete after testing
-                #transmit the file
+            options = get_options()
+            root = options.DOCROOT
+            source_file = os.path.join(root, filename)
+
+            if ".html" in source_file or ".css" in source_file:
+                try:
+                    with open(source_file, 'r', encoding='utf-8') as source:
+                        transmit(STATUS_OK, sock)
+                        for line in source:
+                            transmit(line, sock)
+                except OSError as error:
+                    log.warn("Failed to open or read file")
+                    log.warn("Requested file was {}".format(source_path))
+                    log.warn("Exception: {}".format(error))
+                except:
+                    log.info("I am 404ing right here 1") #FIXME: Delete when done testing
+                    log.info("Request does not exist: {}".format(request))
+                    transmit(STATUS_NOT_FOUND, sock)
+                    transmit("\nThis request does not exist: {}\n".format(request), sock)
+
             else:
+                log.info("I am 404ing right here 2") #FIXME: Delete when done testing
                 log.info("Request does not exist: {}".format(request))
                 transmit(STATUS_NOT_FOUND, sock)
                 transmit("\nThis request does not exist: {}\n".format(request), sock)
     else:
-        log.info("I should never be here") #FIXME: Delete after testing
         log.info("Unhandled request: {}".format(request))
         transmit(STATUS_NOT_IMPLEMENTED, sock)
         transmit("\nI don't handle this request: {}\n".format(request), sock)
