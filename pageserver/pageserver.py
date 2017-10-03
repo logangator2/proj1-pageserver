@@ -103,6 +103,7 @@ def respond(sock):
             options = get_options()
             root = options.DOCROOT
             source_file = os.path.join(root, filename)
+            #source_file = "../../filename"
 
             if ".html" in source_file or ".css" in source_file:
                 try:
@@ -115,13 +116,11 @@ def respond(sock):
                     log.warn("Requested file was {}".format(source_file))
                     log.warn("Exception: {}".format(error))
                 except:
-                    log.info("I am 404ing right here 1") #FIXME: Delete when done testing
                     log.info("Request does not exist: {}".format(request))
                     transmit(STATUS_NOT_FOUND, sock)
                     transmit("\nThis request does not exist: {}\n".format(request), sock)
 
             else:
-                log.info("I am 404ing right here 2") #FIXME: Delete when done testing
                 log.info("Request does not exist: {}".format(request))
                 transmit(STATUS_NOT_FOUND, sock)
                 transmit("\nThis request does not exist: {}\n".format(request), sock)
